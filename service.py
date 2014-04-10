@@ -27,24 +27,20 @@ import xbmc, xbmcgui
 
 import utils
 
-ARCH = utils.get_arch()
-
-if ARCH != 'RPi.arm':
-    sys.exit(1)
-
 
 class Main(object):
     def __init__(self):
-        utils.log("Started service")
-        try:          
-            utils.maybe_init_settings()
-        except IOError:
-            utils.log_exception()
+        if utils.get_arch() == 'RPi.arm':
+            utils.log("Started service")
+            try:          
+                utils.maybe_init_settings()
+            except IOError:
+                utils.log_exception()
 
-        self.monitor = MyMonitor(updated_settings_callback=self.apply_config)
-        
-        while (not xbmc.abortRequested):
-            xbmc.sleep(1000)
+            self.monitor = MyMonitor(updated_settings_callback=self.apply_config)
+
+            while (not xbmc.abortRequested):
+                xbmc.sleep(1000)
 
     def apply_config(self):
         utils.log("Applying settings to {}".format(utils.CONFIG_PATH))
@@ -132,7 +128,8 @@ class MyMonitor(xbmc.Monitor):
         self.updated_settings_callback()
 
 
-Main()
-
-
-
+try:
+    utils.flag_service_started()
+    Main()
+finally:
+    utils.flag_service_stopped()

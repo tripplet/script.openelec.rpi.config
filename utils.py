@@ -73,6 +73,8 @@ __addon__ = xbmcaddon.Addon("script.openelec.rpi.config")
 
 ADDON_NAME = "OpenELEC RPi Config"
 
+SERVICE_RUNNING_FILE = os.path.join(__addon__.getAddonInfo('profile'), 'service_running')
+
 def log(txt, level=xbmc.LOGDEBUG):
     if not (__addon__.getSetting('debug') == 'false' and level == xbmc.LOGDEBUG):
         msg = '{} v{}: {}'.format(__addon__.getAddonInfo('name'),
@@ -91,6 +93,20 @@ def write_error(path, msg):
     log_exception()
     xbmcgui.Dialog().ok("{} Write Error".format(ADDON_NAME), msg,
                         "Unable to write {}.".format(path))
+
+def service_running():
+    return os.path.exists(SERVICE_RUNNING_FILE)
+
+def flag_service_start():
+    open(SERVICE_RUNNING_FILE, 'w').close()
+
+def flag_service_stop():
+    os.remove(SERVICE_RUNNING_FILE)
+
+def start_service():
+    cmd = "XBMC.RunScript({})".format(os.path.join(__addon__.getAddonInfo('path'),
+                                                   'service.py'))
+    xbmc.executebuiltin(cmd)
 
 def set_property_setting(name, value):
     __addon__.setSetting(name, value)

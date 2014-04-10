@@ -24,6 +24,9 @@ import utils
 utils.log("Started script")
 if utils.get_arch() == 'RPi.arm':
     with utils.busy():
+        if not utils.service_running():
+            utils.start_service()
+
         try:
             utils.maybe_init_settings()
         except IOError as e:
